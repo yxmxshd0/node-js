@@ -1,0 +1,14 @@
+{
+  "name": "lab5",
+  "version": "1.0.0",
+  "description": "This is lab5 for MosPoly",
+  "main": "app.js",
+  "scripts": {
+    "serve": "nodemon app.js"
+  },
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "nodemon": "^2.0.22"
+  }
+}
