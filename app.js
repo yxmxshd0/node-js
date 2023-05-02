@@ -4,6 +4,21 @@ const config = require (`./config`)
 
 const fs = require (`fs`)
 
+const comments = [
+    {
+        id:1,
+        name: `Roman`,
+        Age:20
+    },
+    {
+        id:2,
+        name:`Lenya`,
+        Age:15
+    }
+
+];
+
+
 function logRequests(userAgent) {
     let requestsJSON = {};
 
@@ -67,53 +82,59 @@ const server = http.createServer((req,res)=>
         status = 200;
         res.setHeader(`Content-Type`, `text/html`)
         res.write(`<h1>Hi!You're on main page</h1>`);
-
-
-    res.end();
+        res.end();
     }
 
     if (req.url === "/comments") {
-        // Доавить новый комментарий
+        // Добавить новый комментарий
         if (req.method === "POST") {
             let body = "";
              req.on("data", chunk => {
                 body += chunk;
             })
 
-            req.on("end", () => {
+            req.on("end", () => 
+            {
                 const newComment = JSON.parse(body);
+                newComment.dateCreated = new Date();
+                comments.push(newComment);
+                // fs.readFile(path.resolve(__dirname, `data`,`com.json`), (error, content) => 
+                // {
+                //     if (error) 
+                //     {
+                //         throw error;
+                //     }
 
-                fs.readFile(path.join(__dirname, "data/comments.json"), (error, content) => {
-                    if (error) {
-                        throw error;
-                    }
+                //     const data = Buffer.from(content).toString();
+                //     let comments = "";
+                //     if (data.length){
+                //         comments = JSON.parse(data);
+                //     }
+                //     newComment.dateCreated = new Date();
 
-                    const data = Buffer.from(content).toString();
-                    const comments = JSON.parse(data);
+                //     comments = push(newComment)
 
-                    newComment.dateCreated = new Date();
+                //     const commentsToWrite = JSON.stringify(comments);
 
-                    comments.push(newComment)
+                //     fs.writeFile( path.resolve(__dirname, `data`,`com.json`), commentsToWrite, err => 
+                //     {
+                //         if (err) 
+                //         {
+                //             throw err;
+                //         }
 
-                    const commentsToWrite = JSON.stringify(comments);
-
-                    fs.writeFile( path.join(__dirname, "data/comments.json"), commentsToWrite, err => {
-                        if (err) {
-                            throw err;
-                        }
-
-                        console.log("Файл записан");
-                    })
-                })
+                //         console.log("Файл записан");
+                //     })
+                // })
 
                 status = 201;
                 res.setHeader(`Content-Type`, `application/json`)
-                res.end(JSON.stringify(newComment));
+                res.end(comments);
             })
         }
         // получить все комментарии
         else if (req.method === "GET") {
-            fs.readFile(path.join(__dirname, "data/comments.json"), (error, content) => {
+            fs.readFile(path.resolve(__dirname, "data", `com.json`), (error, content) => {
                 if (error) {
                     throw error;
                 }
@@ -136,14 +157,12 @@ const server = http.createServer((req,res)=>
     
     else if (req.url === "/stats") {
         if (req.method === "GET") {
-            fs.readFile( path.join(__dirname, "data/requests.json"), (err, requestsData) => {
+            fs.readFile( path.resolve(__dirname, `data`, `requests.json`), (err, requestsData) => {
                 if (err) {
                     throw err;
                 }
 
                 requestsData = Buffer.from(requestsData).toString();
-
-                // console.log("readed from file", requestsData)
 
                 if (requestsData) {
                     requestsData = JSON.parse(requestsData);
@@ -185,10 +204,7 @@ const server = http.createServer((req,res)=>
                     </table>
                     `;
 
-                headers = {
-                    "Content-Type": "text/html",
-                }
-                res.writeHead(200, headers);
+                res.setHeader("Content-Type", "text/html",)
                 res.end(HTMLTable);
             })
         }
