@@ -20,45 +20,13 @@ const comments = [
 
 const requests = {};
 
+let users = {};
 
-function logRequests(userAgent) {
-
-    let userAgentFindRes = getRequestDataByUserAgent(requests, userAgent);
-
-    //найден
-    if (userAgentFindRes !== -1) {
-        if (requests[userAgent]) {
-            requests[userAgent].requests += 1;
-        }
-        else {
-            requests[userAgent] = {
-                "user-agent": userAgent,
-                requests: 1
-            };
-        }
-    }
-    //не найден
-    else {
-        requests[userAgent] = {
-            "user-agent": userAgent,
-            requests: 1
-        };
-    }
-
-
-}
-
-function getRequestDataByUserAgent(requestData, userAgentName) {
-    const keys = Object.keys(requestData);
-
-    return keys.indexOf(userAgentName);
-}
 
 
 const server = http.createServer((req,res)=>
 {
     const userAgent = req.headers["user-agent"];
-    logRequests(userAgent);
     
 
 
@@ -109,41 +77,39 @@ const server = http.createServer((req,res)=>
 	{
         if (req.method === "GET") 
 		{
-			let HTMLTable = `
-					<meta charset="utf-8">
-					<style>
-						table tr td:first-child {
-							max-width: 400px;
-						}
-					</style>
-					<table>
-						<thead>
-							<tr>
-								<th>User-agent</th>
-								<th>Количество запросов</th>
-							</tr>
-						</thead>
-					
-						<tbody>`;
-
-			for (const userAgent in requests) {
-				const requestObject = requests[userAgent];
-
-				HTMLTable += `
-				<tr>
-					<td>${requestObject["user-agent"]}</td>
-					<td>${requestObject.requests}</td>
-				</tr>
-				`
-			}
-
-			HTMLTable+= `
-					</tbody>
-				</table>
-				`;
-
+            let firstHtml =
+                `<meta charset="utf-8">
+                    <style>
+                        table tr td:first-child 
+                        {
+                            max-width: 200px;
+                            padding-right: 100px;
+                        }
+                        </style>` +
+                    `<table>`+
+                        '<tr>' +
+                            '<td>Имя</td>' +
+                                '<td>Счётчик</td>' +
+                        '</tr>'
+            let secondHtml = ''
+            if (users[userAgent]) 
+            {
+                users[userAgent] += 1
+            }  
+            else
+            {
+                users[userAgent] = 1
+            }
+            for (const key in users) {
+                secondHtml +=
+                        `<tr>
+                            <td>${key}</td>
+                            <td>${users[key]}</td>
+                        </tr>`
+            }
+            let resHtml = firstHtml + secondHtml + '</table>'
 			res.setHeader("Content-Type", "text/html",)
-			res.end(HTMLTable);
+			res.end(resHtml);
     	}
 		else 
 		{
